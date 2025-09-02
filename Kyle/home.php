@@ -149,9 +149,9 @@
                     confirmButtonText: 'Yes, delete it!'
                 }).then((result) => {
                     if (result.isConfirmed) {
-                        window.location.href = 'index.php?confirm_delete=" . $delete_id . "';
+                        window.location.href = 'home.php?confirm_delete=" . $delete_id . "';
                     } else {
-                        window.location.href = 'index.php';
+                        window.location.href = 'home.php';
                     }
                 });
             </script>";
@@ -164,12 +164,12 @@
             if ($conn->query($sql) === TRUE) {
                 echo "<script>
                     Swal.fire('Deleted!', 'Student record has been deleted.', 'success')
-                    .then(() => { window.location.href = 'index.php'; });
+                    .then(() => { window.location.href = 'home.php'; });
                 </script>";
             } else {
                 echo "<script>
                     Swal.fire('Error!', 'Error deleting record: " . $conn->error . "', 'error')
-                    .then(() => { window.location.href = 'index.php'; });
+                    .then(() => { window.location.href = 'home.php'; });
                 </script>";
             }
         }
@@ -326,7 +326,7 @@
                                         <td class='action-buttons'>
                                             <a href='view_student.php?id={$row['student_id']}' class='btn btn-info btn-sm' title='View'><i class='fas fa-eye'></i></a>
                                             <a href='edit_student.php?id={$row['student_id']}' class='btn btn-warning btn-sm' title='Edit'><i class='fas fa-edit'></i></a>
-                                            <a href='index.php?delete_id={$row['student_id']}' class='btn btn-danger btn-sm' title='Delete'><i class='fas fa-trash'></i></a>
+                                            <a href='home.php?delete_id={$row['student_id']}' class='btn btn-danger btn-sm' title='Delete'><i class='fas fa-trash'></i></a>
                                         </td>
                                     </tr>";
                                 }
