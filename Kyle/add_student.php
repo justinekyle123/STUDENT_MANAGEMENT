@@ -1,3 +1,50 @@
+<?php
+include 'config.php';
+
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['add_student'])) {
+    $name = $_POST['name'];
+    $gender = $_POST['gender'];
+    $address = $_POST['address'];
+    $place_of_birth = $_POST['place_of_birth'];
+    $contact_no = $_POST['contact_no'];
+    $date_of_birth = $_POST['date_of_birth'];
+    $email = $_POST['email'];
+    $age = $_POST['age'];
+    $religion = $_POST['religion'];
+    $citizenship = $_POST['citizenship'];
+    $civil_status = $_POST['civil_status'];
+    
+    // Handle file upload
+    $photo = '';
+    if (isset($_FILES['photo']) && $_FILES['photo']['error'] === UPLOAD_ERR_OK) {
+        $upload_dir = 'uploads/';
+        if (!is_dir($upload_dir)) {
+            mkdir($upload_dir, 0777, true);
+        }
+        $photo_name = time() . '_' . basename($_FILES['photo']['name']);
+        $photo_path = $upload_dir . $photo_name;
+        if (move_uploaded_file($_FILES['photo']['tmp_name'], $photo_path)) {
+            $photo = $photo_path;
+        }
+    }
+    
+    // Insert student
+    $stmt = $conn->prepare("INSERT INTO students (Photo, Name, Gender, Address, Place_of_Birth, Contact_no, Date_of_birth, Email, Age, Religion, Citizenship, Civil_status) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
+    $stmt->bind_param("ssssssssisss", $photo, $name, $gender, $address, $place_of_birth, $contact_no, $date_of_birth, $email, $age, $religion, $citizenship, $civil_status);
+    
+    if ($stmt->execute()) {
+        header("Location: home.php?success=Student added successfully!");
+        exit();
+    } else {
+        header("Location: home.php?error=Error adding student: " . $stmt->error);
+        exit();
+    }
+    $stmt->close();
+}
+
+$conn->close();
+?>
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -158,7 +205,7 @@
     <!-- Navigation Bar -->
     <nav class="navbar navbar-expand-lg navbar-dark">
         <div class="container">
-            <a class="navbar-brand" href="index.php">
+            <a class="navbar-brand" href="home.php">
                 <i class="fas fa-graduation-cap me-2"></i>Student Management System
             </a>
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
@@ -167,7 +214,7 @@
             <div class="collapse navbar-collapse" id="navbarNav">
                 <ul class="navbar-nav ms-auto">
                     <li class="nav-item">
-                        <a class="nav-link" href="index.php"><i class="fas fa-home me-1"></i> Home</a>
+                        <a class="nav-link" href="home.php"><i class="fas fa-home me-1"></i> Home</a>
                     </li>
                     <li class="nav-item">
                         <a class="nav-link active" href="add_student.php"><i class="fas fa-user-plus me-1"></i> Add Student</a>
@@ -188,7 +235,7 @@
             </div>
             
             <div class="form-body">
-                <form id="addStudentForm" method="POST" action="">
+                <form id="addStudentForm" method="POST" action="add_student.php" enctype="multipart/form-data">
                     <!-- Personal Information Section -->
                     <div class="form-section">
                         <h4 class="section-title"><i class="fas fa-user me-2"></i>Personal Information</h4>
@@ -276,7 +323,7 @@
                         </div>
                     </div>
                     
-                    <!-- Additional Information Section -->
+
                     <div class="form-section">
                         <h4 class="section-title"><i class="fas fa-info-circle me-2"></i>Additional Information</h4>
                         <div class="row">
@@ -333,7 +380,6 @@
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
     <script>
-        // Calculate age based on date of birth
         document.getElementById('date_of_birth').addEventListener('change', function() {
             const dob = new Date(this.value);
             const today = new Date();
@@ -383,15 +429,13 @@
                 confirmButtonText: 'Yes, add student!'
             }).then((result) => {
                 if (result.isConfirmed) {
-                    // Simulate form submission success
                     Swal.fire({
                         icon: 'success',
                         title: 'Student Added!',
                         text: 'Student has been successfully added to the system.',
                         confirmButtonColor: '#4e73df'
                     }).then(() => {
-                        // In a real application, you would submit the form here
-                        // this.submit();
+                        this.submit();
                     });
                 }
             });
